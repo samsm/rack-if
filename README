@@ -1,0 +1,10 @@
+Use or don't use rack apps based on a variety of environment variables.
+
+Example:
+use Rack::If, :path => '/protected', :method => /get/i do
+  use Rack::Auth::Basic, "Rack::If Example" do |username, password|
+    'secret' == password
+  end
+end
+
+Options available are: path, method, user_agent, host, port, query_string, http_accept, and http_accept_encoding.
