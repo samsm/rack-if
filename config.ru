@@ -1,12 +1,10 @@
 require 'rubygems'
 require 'rack'
-require 'pather'
-require 'rack/builder'
 require 'ruby-debug'
 
 class Rack::Nest
 
-  def initialize(app,options ={}, &block)
+  def initialize(app,options ={}, block = lambda {})
     @path = options[:path]
     @method = options[:method]
     @app = app
@@ -16,10 +14,17 @@ class Rack::Nest
   def call(env)
     if @path == env['PATH_INFO']
       child_app = @app
+      block = @block
       new_app = Rack::Builder.app do
-        use Rack::Auth::Basic, "Lobster 2.0" do |username, password|
-          'secret' == password
-        end
+        # This works:
+        # use Rack::Auth::Basic, "Lobster 2.0" do |username, password|
+        #   'secret' == password
+        # end
+        
+        # This doesn't:
+        block.call
+        
+        
         run lambda { |env| child_app.call(env) }
       end
       new_app.call(env)
@@ -29,6 +34,10 @@ class Rack::Nest
   end
 end
 
-use Rack::Nest, :path => '/no'
+use Rack::Nest, {:path => '/no'} do
+  use Rack::Auth::Basic, "Lobster 2.0" do |username, password|
+    'secret' == password
+  end
+end
 
 run lambda { |env| [200, {'Content-Type' => 'text/plain'}, 'Hi'] }
