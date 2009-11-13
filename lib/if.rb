@@ -26,8 +26,8 @@ class Rack::If
       :user_agent           => "HTTP_USER_AGENT",
       :host                 => "HTTP_HOST",
       :port                 => "SERVER_PORT",
-      :query_string         => "SERVER_PORT",
-      :http_accept          =>  "HTTP_ACCEPT",
+      :query_string         => "QUERY_STRING",
+      :http_accept          => "HTTP_ACCEPT",
       :http_accept_encoding => "HTTP_ACCEPT_ENCODING"
     }
   end
