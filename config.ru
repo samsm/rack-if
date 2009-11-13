@@ -2,21 +2,46 @@ require 'rubygems'
 require 'rack'
 require 'ruby-debug'
  
-class Rack::Nest
+class Rack::If
  
   attr_reader :app
  
   def initialize(app, options={}, &block)
-    @path   = options[:path]
-    @method = options[:method]
-    @app    = app
- 
+    @options = options
+    @app     = app
+    
     @middleware = []
     instance_eval(&block)
   end
- 
+  
+  def match?(env)
+    @options.inject(true) do |memo, pair|
+      if_key = pair[0]
+      rack_key = comparison_table[if_key]
+      if_value = pair[1]
+      if if_value.kind_of? Regexp
+        memo && env[rack_key] =~ if_value
+      else
+        memo && env[rack_key] == if_value
+      end
+    end
+  end
+  
+  def comparison_table
+    {
+      :path => "PATH_INFO",
+      :method => "REQUEST_METHOD",
+      :user_agent => "HTTP_USER_AGENT",
+      :host => "HTTP_HOST",
+      :port => "SERVER_PORT",
+      :query_string => "SERVER_PORT",
+      :http_accept =>  "HTTP_ACCEPT",
+      :http_accept_encoding => "HTTP_ACCEPT_ENCODING"
+    }
+  end
+  
   def call(env)
-    if @path == env['PATH_INFO']
+    if match?(env)
       stack.call(env)
     else
       app.call(env)
@@ -30,10 +55,11 @@ class Rack::Nest
   def use(middleware, *args, &block)
     @middleware << lambda { |app| middleware.new(app, *args, &block) }
   end
+  
 end
  
-use Rack::Nest, :path => '/no' do
-  use Rack::Auth::Basic, "Lobster 2.0" do |username, password|
+use Rack::If, :path => '/no' do
+  use Rack::Auth::Basic, "Rif" do |username, password|
     'secret' == password
   end
 end
