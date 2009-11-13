@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'rack'
-require 'lib/if'
+require 'lib/rackif'
 
 use Rack::If, :path => '/protected', :method => 'GET' do
   use Rack::Auth::Basic, "Rack::If Example" do |username, password|
