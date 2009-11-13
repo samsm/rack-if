@@ -8,3 +8,5 @@ use Rack::If, :path => '/protected', :method => /get/i do
 end
 
 Options available are: path, method, user_agent, host, port, query_string, http_accept, and http_accept_encoding.
+
+Values given can be strings or regex (=== used for comparison).
