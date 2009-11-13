@@ -15,7 +15,7 @@ class Rack::If
       if_key = pair[0]
       rack_key = comparison_table[if_key]
       if_value = pair[1]
-      memo && env[rack_key] === if_value
+      memo && if_value === env[rack_key]
     end
   end
   
