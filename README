@@ -5,11 +5,15 @@ gem install rackif --source http://gemcutter.org
 Example:
 
 require 'rackif'
-use Rack::If, :path => '/protected', :method => /get/i do
+use Rack::If, {:path => /\A\/protected.*/, :method => 'POST'}, :any do
   use Rack::Auth::Basic, "Rack::If Example" do |username, password|
     'secret' == password
   end
 end
+
+The third argument (:all or :any) is optional, defaults to :all.
+
+With :all, all options must match for the block to get run. In the above example, the path would need to start with /protected AND the method would need to be POST. With :any, if ANY of the criteria match (either POST or the path), the block is run.
 
 Options available are: path, method, user_agent, host, port, query_string, http_accept, and http_accept_encoding.
 

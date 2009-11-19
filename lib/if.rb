@@ -2,15 +2,34 @@ class Rack::If
  
   attr_reader :app
  
-  def initialize(app, options={}, &block)
-    @options = options
-    @app     = app
+  def initialize(app, options={}, all_or_any = :all, &block)
+    @methodology = all_or_any
+    @options     = options
+    @app         = app
     
     @middleware = []
     instance_eval(&block)
   end
   
   def match?(env)
+    case @methodology.to_s
+    when 'all'
+      match_all?(env)
+    when 'any'
+      match_any?(env)
+    end
+  end
+  
+  def match_any?(env)
+    @options.inject(false) do |memo,pair|
+      if_key = pair[0]
+      rack_key = comparison_table[if_key]
+      if_value = pair[1]
+      memo || if_value === env[rack_key]
+    end
+  end
+  
+  def match_all?(env)
     @options.inject(true) do |memo, pair|
       if_key = pair[0]
       rack_key = comparison_table[if_key]
