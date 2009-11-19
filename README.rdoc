@@ -1,0 +1,45 @@
+= Rack::If
+
+Use or don't use rack apps based on a variety of environment variables.
+
+== Use
+
+gem install rackif
+
+Example (in your config.ru):
+
+  require 'rackif'
+  use Rack::If, {:path => /\A\/protected.*/, :method => 'POST'}, :any do
+    use Rack::Auth::Basic, "Rack::If Example" do |username, password|
+      'secret' == password
+    end
+  end
+  
+  run MyApp.new # when above matches, this is protected
+
+== Configuration
+
+Rack::If, options, all_or_any
+
+The third argument (:all or :any) is optional, defaults to :all.
+
+With :all, all options must match for the block to get run. In the above example, the path would need to start with /protected AND the method would need to be POST. With :any, if ANY of the criteria match (either POST or the path), the block is run.
+
+Options available are: path, method, user_agent, host, port, query_string, http_accept, and http_accept_encoding.
+
+Values given can be strings or regex (=== used for comparison).
+
+== Note on Patches/Pull Requests
+ 
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but
+   bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== Copyright
+
+Copyright (c) 2009 Sam Schenkman-Moore. See LICENSE for details.
