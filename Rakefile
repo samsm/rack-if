@@ -5,7 +5,7 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "rack--if"
+    gem.name = "rackif"
     gem.summary = "Conditional use of rack apps"
     gem.description = "Use or don't use Rack apps based on a variety of environment factors."
     gem.email = "samsm@samsm.com"
