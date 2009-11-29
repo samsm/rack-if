@@ -9,7 +9,7 @@ gem install rackif
 Example (in your config.ru):
 
   require 'rackif'
-  use Rack::If, {:path => /\A\/protected.*/, :method => 'POST'}, :any do
+  use Rack::If, {:path => /\A\/protected.*/, :method => 'POST'}, {:match => :any} do
     use Rack::Auth::Basic, "Rack::If Example" do |username, password|
       'secret' == password
     end
@@ -17,17 +17,35 @@ Example (in your config.ru):
   
   run MyApp.new # when above matches, this is protected
 
-== Configuration
+== Basic Configuration
 
-Rack::If, options, all_or_any
+Rack::If, pattern, options
 
-The third argument (:all or :any) is optional, defaults to :all.
+The third argument (options) is optional, will be merged with {:match => :all}.
 
 With :all, all options must match for the block to get run. In the above example, the path would need to start with /protected AND the method would need to be POST. With :any, if ANY of the criteria match (either POST or the path), the block is run.
 
-Options available are: path, method, user_agent, host, port, query_string, http_accept, and http_accept_encoding.
+Patterns for matching available are: path, method, user_agent, host, port, query_string, http_accept, and http_accept_encoding.
 
 Values given can be strings or regex (=== used for comparison).
+
+== Names, Skiping
+
+You can name a Rack::If ... it will store that name in env['rackif.passed'] when that Rack::If is triggered.
+Then, use the :skipif option to skip certain Rack:Ifs when another Rack::If has already run.
+
+Example:
+
+  use Rack::If, {:path => /\A\/admin\/mega-admin.*/}, {:match => :any, :name => 'SuperAdmin'} do
+    use EasyRackOpenID, :allowed_identifiers => ['http://example.com/mega-admin']
+  end
+  
+  # If a person goes to /admin/mega-admin and passes that check, they skip this one:
+  use Rack::If, {:path => /\A\/admin.*/}, {:match => :any, :skipif => 'SuperAdmin'} do
+    use EasyRackOpenID, :allowed_identifiers => ['http://example.com/admin']
+  end
+
+
 
 == Note on Patches/Pull Requests
  

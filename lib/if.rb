@@ -1,8 +1,9 @@
 class Rack::If
- 
+  
   attr_reader :app
   
-  DEFAULT_OPTIONS = {:match => :all}
+  DEFAULT_OPTIONS    = {:match => :all}
+  STORE_PROGRESS_KEY = 'rackif.passed'
   
   def initialize(app, pattern = {}, options = {}, &block)
     update_conf_message(options)
@@ -15,7 +16,14 @@ class Rack::If
     instance_eval(&block)
   end
   
-  def methodology ; @options[:match] ; end
+  def name
+    # if this "if" doesn't have a name, give it a random one.
+    @name ||= options[:name] || "unnamed#{rand.to_s[2..9]}"
+  end
+  
+  def options ; @options ; end
+  
+  def methodology ; options[:match] ; end
   
   def match?(env)
     case methodology.to_s
@@ -58,17 +66,27 @@ class Rack::If
   end
   
   def call(env)
+    return app.call(env) if skip?(env)
     if match?(env)
+      (env[STORE_PROGRESS_KEY] ||= []) << name
       stack.call(env)
     else
       app.call(env)
     end
   end
- 
+  
+  def skip?(env)
+    # If the user has already successfull passed a given named if:
+    if env[STORE_PROGRESS_KEY] && env[STORE_PROGRESS_KEY].include?(options[:skipif])
+      return true # skip!
+    end
+    false
+  end
+  
   def stack
     @middleware.reverse.inject(app) { |app, mid| mid.call(app) }
   end
- 
+  
   def use(middleware, *args, &block)
     @middleware << lambda { |app| middleware.new(app, *args, &block) }
   end
