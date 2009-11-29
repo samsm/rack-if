@@ -1,18 +1,24 @@
 class Rack::If
  
   attr_reader :app
- 
-  def initialize(app, options={}, all_or_any = :all, &block)
-    @methodology = all_or_any
-    @options     = options
-    @app         = app
+  
+  DEFAULT_OPTIONS = {:match => :all}
+  
+  def initialize(app, pattern = {}, options = {}, &block)
+    update_conf_message(options)
+    
+    @pattern = pattern
+    @options = DEFAULT_OPTIONS.merge(options)
+    @app     = app
     
     @middleware = []
     instance_eval(&block)
   end
   
+  def methodology ; @options[:match] ; end
+  
   def match?(env)
-    case @methodology.to_s
+    case methodology.to_s
     when 'all'
       match_all?(env)
     when 'any'
@@ -21,7 +27,7 @@ class Rack::If
   end
   
   def match_any?(env)
-    @options.inject(false) do |memo,pair|
+    @pattern.inject(false) do |memo,pair|
       if_key = pair[0]
       rack_key = comparison_table[if_key]
       if_value = pair[1]
@@ -30,7 +36,7 @@ class Rack::If
   end
   
   def match_all?(env)
-    @options.inject(true) do |memo, pair|
+    @pattern.inject(true) do |memo, pair|
       if_key = pair[0]
       rack_key = comparison_table[if_key]
       if_value = pair[1]
@@ -67,4 +73,9 @@ class Rack::If
     @middleware << lambda { |app| middleware.new(app, *args, &block) }
   end
   
+  def update_conf_message(options)
+    unless options.kind_of? Hash
+      raise 'Change :all/:any to {:match => :all}. :)'
+    end
+  end
 end
