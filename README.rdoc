@@ -1,6 +1,6 @@
 = Rack::If
 
-Use or don't use rack apps based on a variety of environment variables. That was the original purpose of this gem, however Rack::If basically allows you make adjustment to the Rack stack based on environment variables.
+Use or don't use rack apps based on a variety of environment variables.
 
 == Use
 
