@@ -2,9 +2,11 @@ require 'rubygems'
 require 'rack'
 require 'lib/rackif'
 
-use Rack::If, {:path => '/protected', :method => 'POST'}, :any do
-  use Rack::Auth::Basic, "Rack::If Example" do |username, password|
-    'secret' == password
+use Rack::If do
+  if path == '/protected' && method == 'GET'
+    use Rack::Auth::Basic, "Rack::If Example" do |username, password|
+      'secret' == password
+    end
   end
 end
 
