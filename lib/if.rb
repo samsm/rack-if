@@ -1,4 +1,4 @@
-class Rack::If
+class Rack::IfProcessing
  
   attr_reader :app, :env
  
