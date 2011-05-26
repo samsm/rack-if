@@ -16,7 +16,7 @@ Example (in your config.ru):
       end
     end
   end
-  
+
   run MyApp.new # when above matches, this is protected
 
 == Configuration

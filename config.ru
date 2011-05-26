@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'rack'
-require 'lib/rackif'
+require 'lib/rack-if'
 
 use Rack::If do
   if path == '/protected' && method == 'GET'
