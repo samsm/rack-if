@@ -5,5 +5,4 @@ gemspec
 
 group :demo do
   gem 'shotgun'
-  gem 'ruby-debug'
 end

@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'rack'
-require 'lib/rack-if'
+require './lib/rack-if'
 
 use Rack::If do
   if path == '/protected' && method == 'GET'
@@ -10,4 +10,4 @@ use Rack::If do
   end
 end
 
-run lambda { |env| [200, {'Content-Type' => 'text/plain'}, 'Hi'] }
+run lambda { |env| [200, {'Content-Type' => 'text/html'}, ['Hi. Try /protected']] }
